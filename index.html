@@ -85,7 +85,8 @@ textarea.qa-ta{min-height:150px;font:13px/1.5 ui-monospace,Consolas,monospace;re
 <div id="setsList" class="sets"></div>
 <div class="notice">Mẹo: tạo các bộ riêng như Education, Environment hoặc IELTS Writing Task 2 để lọc và học dễ hơn. Dữ liệu lưu trong trình duyệt trên thiết bị này.</div>
 </section>
-<section id="practicePage" class="page">\n<div class="focus-inner">
+<section id="practicePage" class="page">
+<div class="focus-inner">
 <div class="pagehead"><div><h1>Luyện tập</h1><p class="sub">Chọn một cách học và bắt đầu luyện tập. Từ đã đánh dấu “đã học” sẽ không xuất hiện ở đây.</p></div><select id="practiceSet" style="max-width:270px"><option value="all">Tất cả bộ từ</option></select></div>
 <div class="practicegrid">
 <button class="practicecard" data-mode="flash"><span class="big">🃏</span><b>Flashcard</b><p>Lật thẻ để nhớ từ, IPA và nghĩa.</p></button>
@@ -100,8 +101,29 @@ textarea.qa-ta{min-height:150px;font:13px/1.5 ui-monospace,Consolas,monospace;re
 <div id="quizArea" class="hide"><h2 id="quizQuestion"></h2><div id="quizChoices" class="choices"></div><div id="quizFeedback" class="feedback"></div><div class="actions"><button id="quizNext" class="btn primary">Câu tiếp theo →</button></div></div>
 <div id="writeArea" class="hide"><p id="writePrompt" class="meaning"></p><button id="playAudio" class="btn light wide">🔊 Nghe phát âm</button><div class="field"><label id="writeLabel">Nhập từ tiếng Anh</label><input id="writeAnswer" class="input" autocomplete="off" placeholder="Gõ câu trả lời..."></div><div class="actions"><button id="checkAnswer" class="btn primary">Kiểm tra</button><button id="writeNext" class="btn plain">Bỏ qua →</button></div><div id="writeFeedback" class="feedback"></div></div>
 </div>
+</div>
 </section>
-<section id="settingsPage" class="page"><div class="pagehead"><div><h1>Cài đặt</h1><p class="sub">Tùy chỉnh giao diện và giọng đọc.</p></div></div>
+<section id="settingsPage" class="page">
+<div class="pagehead"><div><h1>Cài đặt</h1><p class="sub">Tùy chỉnh giao diện và giọng đọc.</p></div></div>
+
+<!-- ===== Khung Đồng bộ đám mây ===== -->
+<div class="panel">
+  <h2>☁️ Đồng bộ đám mây tự động</h2>
+  <p class="sub">Đồng bộ từ vựng giữa máy tính và điện thoại qua Mã đồng bộ.</p>
+  <div class="field" style="margin-top:14px">
+    <label for="syncCodeInput">Mã đồng bộ của bạn (Ví dụ: <code>vocab123456</code>)</label>
+    <div style="display:flex;gap:8px">
+      <input id="syncCodeInput" class="input" placeholder="Nhập mã đồng bộ chung..." autocomplete="off">
+      <button class="btn primary" id="saveSyncCodeBtn" style="white-space:nowrap">Lưu mã</button>
+    </div>
+  </div>
+  <div class="actions" style="margin-top:12px">
+    <button class="btn blue" id="pushCloudBtn">☁️ Đẩy dữ liệu lên mây</button>
+    <button class="btn light" id="pullCloudBtn">🔄 Tải dữ liệu về máy</button>
+  </div>
+  <p class="inlinehint" id="syncStatus" style="margin-top:8px">Chưa thiết lập mã đồng bộ.</p>
+</div>
+
 <div class="panel"><h2>🎨 Giao diện</h2><p class="sub">Chọn chế độ sáng hoặc tối cho website.</p><div class="actions" style="margin-top:14px"><button class="btn light" id="lightTheme">☀️ Chế độ sáng</button><button class="btn plain" id="darkTheme">🌙 Chế độ tối</button></div><p class="inlinehint" id="themeStatus"></p></div>
 <div class="panel"><h2>🔊 Giọng đọc tiếng Anh</h2><p class="sub">Chọn giọng khác nếu thiết bị có cung cấp. Chất lượng phụ thuộc vào trình duyệt và Windows.</p><div class="field"><label for="voiceSelect">Giọng đọc</label><select id="voiceSelect"><option value="">Đang tải danh sách giọng...</option></select></div><div class="field"><label for="voiceRate">Tốc độ đọc</label><select id="voiceRate"><option value="0.85">Chậm</option><option value="0.95">Tự nhiên</option><option value="1.05">Nhanh hơn</option><option value="1.15">Nhanh</option></select></div><button class="btn primary" id="testVoice">▶ Nghe thử giọng</button><p class="inlinehint" id="voiceStatus"></p><p class="inlinehint">Nếu có giọng Google English trong danh sách, bạn có thể chọn thử. Nếu không, hãy thử các giọng Microsoft English.</p></div></section>
 </main></div>
@@ -177,7 +199,7 @@ function deleteSet(id){
 function viewSet(id){currentSet=sets.find(x=>x.id===id);if(!currentSet)return;let s=currentSet;openModal(s.name,`${s.words.length} từ · ${s.words.filter(w=>w.learned).length} đã học`,`<div class="actions"><button class="btn primary" id="detailAdd">＋ Thêm từ</button><button class="btn blue" id="detailImport">⇧ Nhập file</button><button class="btn plain" id="detailReset" onclick="resetLearned(currentSet.id)">↺ Chưa thuộc tất cả</button></div><div id="detailWords" class="wordlist" style="margin-top:14px"></div><div class="notice">Đánh dấu “đã học” để theo dõi tiến độ của bộ từ này.</div>`);$("detailAdd").onclick=()=>{closeModal();wordModal(id)};$("detailImport").onclick=()=>{closeModal();importModal(id)};renderDetailWords(id)}
 function renderDetailWords(id){
  let set=sets.find(x=>x.id===id);if(!set)return;let box=$("detailWords");if(!box)return;
- box.innerHTML=set.words.length?`<table class="wordtable"><thead><tr><th>#</th><th>TỪ VỰNG</th><th>NGHĨA</th><th>LOẠI TỪ</th><th>IPA</th><th>VÍ DỤ</th><th>ĐÃ HỌC</th><th></th></tr></thead><tbody>${set.words.map((w,i)=>`<tr data-row="${w.id}"><td>${i+1}</td><td><input class="wterm" data-field="word" aria-label="Từ vựng" value="${esc(w.word)}"><div style="font-size:11px;color:#c6baff">${esc(w.ipa)}</div></td><td><input class="wmeaning" data-field="meaning" aria-label="Nghĩa" value="${esc(w.meaning)}"></td><td><input data-field="pos" aria-label="Loại từ" value="${esc(w.pos||"")}"></td><td><input data-field="ipa" aria-label="IPA" value="${esc(w.ipa||"")}"></td><td><input class="wexample" data-field="example" aria-label="Ví dụ" value="${esc(w.example||"")}"></td><td><input type="checkbox" data-field="learned" ${w.learned?"checked":""} aria-label="Đã học"></td><td><button data-delword="${w.id}" title="Xóa từ">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Bộ từ này chưa có từ nào.<b>Thêm từ đầu tiên</b>Nhấn nút “Thêm từ” ở phía trên.</div>`;
+ box.innerHTML=set.words.length?`<table class="wordtable"><thead><tr><th>#</th><th>TỪ VỰNG</th><th>NGHĨA</th><th>LOẠI TỪ</th><th>IPA</th><th>VÍ DỤ</th><th>ĐÃ HỌC</th><th></th></tr></thead><tbody>${set.words.map((w,i)=>`<tr data-row="${w.id}"><td>${i+1}</td><td><input class="wterm" data-field="word" aria-label="Từ vựng" value="${esc(w.word)}"><div style="font-size:11px;color:#c6baff">${esc(w.ipa)}</div></td><td><input class="wmeaning" data-field="meaning" aria-label="Nghĩa" value="${esc(w.meaning)}"></td><td><input data-field="pos" aria-label="Loại từ" value="${esc(w.pos||"")}"></td><td><input data-field="ipa" aria-label="IPA" value="${esc(w.ipa||"")}"></td><td><input data-field="example" aria-label="Ví dụ" value="${esc(w.example||"")}"></td><td><input type="checkbox" data-field="learned" ${w.learned?"checked":""} aria-label="Đã học"></td><td><button data-delword="${w.id}" title="Xóa từ">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Bộ từ này chưa có từ nào.<b>Thêm từ đầu tiên</b>Nhấn nút “Thêm từ” ở phía trên.</div>`;
  box.querySelectorAll("tr[data-row]").forEach(row=>row.querySelectorAll("[data-field]").forEach(input=>{const update=()=>{let w=set.words.find(x=>x.id===row.dataset.row);if(!w)return;let field=input.dataset.field;w[field]=field==="learned"?input.checked:input.value.trim();saveSets();renderSets();let learned=set.words.filter(x=>x.learned).length;$("modalSub").textContent=`${set.words.length} từ · ${learned} đã học`;};input.addEventListener(input.type==="checkbox"?"change":"change",update);input.addEventListener("keydown",e=>{if(e.key==="Enter"&&input.tagName==="INPUT"){e.preventDefault();input.blur()}})}));
  box.querySelectorAll("[data-delword]").forEach(b=>b.onclick=()=>{let w=set.words.find(x=>x.id===b.dataset.delword);if(confirm(`Xóa từ "${w.word}"?`)){set.words=set.words.filter(x=>x.id!==w.id);saveSets();renderSets();renderDetailWords(id);$("modalSub").textContent=`${set.words.length} từ · ${set.words.filter(x=>x.learned).length} đã học`;}});
 }
@@ -193,7 +215,7 @@ function countSelectedWords(){let setId=$("practiceSet").value;return sets.filte
 function beginPractice(m){practiceWords=getPracticeWords().sort(()=>Math.random()-.5);if(!practiceWords.length){toast(countSelectedWords()?"Bạn đã thuộc hết các từ ở đây rồi 🎉 Hãy thêm từ mới hoặc bấm “Chưa thuộc tất cả” để ôn lại.":"Bộ từ này chưa có từ. Hãy thêm từ trước nhé.");return}mode=m;idx=0;score=0;questionNo=0;answered=false;flipped=false;$("practicePage").classList.add("focus-page");$("practiceArea").classList.remove("hide");$("flashArea").classList.toggle("hide",m!=="flash");$("quizArea").classList.toggle("hide",m!=="quiz");$("writeArea").classList.toggle("hide",!["listen","type"].includes(m));$("modeTitle").textContent={flash:"Flashcard",quiz:"Trắc nghiệm",listen:"Nghe và viết",type:"Gõ từ vựng"}[m];$("practiceArea").scrollIntoView({behavior:"smooth",block:"start"});showPracticeItem()}
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>beginPractice(b.dataset.mode));
 $("exitPractice").onclick=()=>{$("practiceArea").classList.add("hide");$("practicePage").classList.remove("focus-page")};
-function showPracticeItem(){if(!practiceWords.length)return;idx=(idx+practiceWords.length)%practiceWords.length;let w=practiceWords[idx];$("practiceCount").textContent=`Từ ${idx+1}/${practiceWords.length} · Điểm ${score}`;if(mode==="flash"){flipped=false;const reverse=direction==="vn-en";$("flashTerm").textContent=reverse?w.meaning:w.word;$("flashIpa").textContent=reverse?"Nghĩa tiếng Việt":"ENGLISH · NHẤN ĐỂ LẬT THẺ";$("flashMeaning").textContent=reverse?w.word:w.meaning;$("flashExample").textContent=reverse?[w.ipa||"Chưa có IPA",w.example||""].filter(Boolean).join(" · "):w.example||"";$("flashBack").classList.add("hide");setTimeout(()=>{if(direction==="vn-en")speakMeaning(w.meaning);else speakWord(w.word)},100)}else if(mode==="quiz"){answered=false;$("quizQuestion").textContent=direction==="en-vn"?`“${w.word}” có nghĩa là gì?`:`“${w.meaning}” tương ứng với từ tiếng Anh nào?`;$("quizFeedback").textContent="";let options=[w,...getPoolWords().filter(x=>x.id!==w.id).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);$("quizChoices").innerHTML=options.map(o=>`<button class="choice" data-id="${o.id}">${esc(direction==="en-vn"?o.meaning:o.word)}</button>`).join("");$("quizChoices").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(answered)return;answered=true;let ok=b.dataset.id===w.id;if(ok){score++;b.classList.add("correct");$("quizFeedback").textContent="Chính xác! 🎉"}else{b.classList.add("wrong");$("quizFeedback").textContent=`Đáp án đúng: ${direction==="en-vn"?w.meaning:w.word}`;$("quizChoices").querySelectorAll("button").forEach(x=>{if(x.dataset.id===w.id)x.classList.add("correct")})}$("practiceCount").textContent=`Từ ${idx+1}/${practiceWords.length} · Điểm ${score}`})}else{writeChecked=false;$("writeAnswer").value="";$("writeFeedback").textContent="";$("writePrompt").textContent=mode==="listen"?"Nghe từ tiếng Anh và viết lại":(direction==="en-vn"?"Nghĩa: "+w.meaning:"Từ tiếng Anh: "+w.word+" — hãy gõ nghĩa tiếng Việt");$("playAudio").classList.toggle("hide",mode==="type"&&direction==="vn-en");$("writeLabel").textContent=mode==="listen"?"Viết từ bạn vừa nghe":"Nhập từ tiếng Anh tương ứng";$("writeAnswer").placeholder=mode==="listen"?"Nghe rồi nhập từ...":(direction==="en-vn"?"Gõ từ tiếng Anh...":"Gõ nghĩa tiếng Việt...");if(mode==="listen")speakWord(w.word)}}
+function showPracticeItem(){if(!practiceWords.length)return;idx=(idx+practiceWords.length)%practiceWords.length;let w=practiceWords[idx];$("practiceCount").textContent=`Từ ${idx+1}/${practiceWords.length} · Điểm ${score}`;if(mode==="flash"){flipped=false;const reverse=direction==="vn-en";$("flashTerm").textContent=reverse?w.meaning:w.word;$("flashIpa").textContent=reverse?"Nghĩa tiếng Việt":"ENGLISH · NHẤN ĐỂ LẬT THẺ";$("flashMeaning").textContent=reverse?w.word:w.meaning;$("flashExample").textContent=reverse?[w.ipa\vert{}\vert{}"Chưa có IPA",w.example\vert{}\vert{}""].filter(Boolean).join(" · "):w.example\vert{}\vert{}"";$("flashBack").classList.add("hide");setTimeout(()=>{if(direction==="vn-en")speakMeaning(w.meaning);else speakWord(w.word)},100)}else if(mode==="quiz"){answered=false;$("quizQuestion").textContent=direction==="en-vn"?`“${w.word}” có nghĩa là gì?`:`“${w.meaning}” tương ứng với từ tiếng Anh nào?`;$("quizFeedback").textContent="";let options=[w,...getPoolWords().filter(x=>x.id!==w.id).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);$("quizChoices").innerHTML=options.map(o=>`<button class="choice" data-id="${o.id}">${esc(direction==="en-vn"?o.meaning:o.word)}</button>`).join("");$("quizChoices").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(answered)return;answered=true;let ok=b.dataset.id===w.id;if(ok){score++;b.classList.add("correct");$("quizFeedback").textContent="Chính xác! 🎉"}else{b.classList.add("wrong");$("quizFeedback").textContent=`Đáp án đúng: ${direction==="en-vn"?w.meaning:w.word}`;$("quizChoices").querySelectorAll("button").forEach(x=>{if(x.dataset.id===w.id)x.classList.add("correct")})}$("practiceCount").textContent=`Từ ${idx+1}/${practiceWords.length} · Điểm ${score}`})}else{writeChecked=false;$("writeAnswer").value="";$("writeFeedback").textContent="";$("writePrompt").textContent=mode==="listen"?"Nghe từ tiếng Anh và viết lại":(direction==="en-vn"?"Nghĩa: "+w.meaning:"Từ tiếng Anh: "+w.word+" — hãy gõ nghĩa tiếng Việt");$("playAudio").classList.toggle("hide",mode==="type"&&direction==="vn-en");$("writeLabel").textContent=mode==="listen"?"Viết từ bạn vừa nghe":"Nhập từ tiếng Anh tương ứng";$("writeAnswer").placeholder=mode==="listen"?"Nghe rồi nhập từ...":(direction==="en-vn"?"Gõ từ tiếng Anh...":"Gõ nghĩa tiếng Việt...");if(mode==="listen")speakWord(w.word)}}
 function getSelectedVoice(){let vs=speechSynthesis.getVoices(),key=localStorage.getItem("vf_voice")||"";if(key){let found=vs.find(v=>v.name+"|"+v.lang===key);if(found)return found}return vs.find(v=>/steffan/i.test(v.name))||vs.find(v=>/Google US English/i.test(v.name))||vs.find(v=>/Google.*English/i.test(v.name))||vs.find(v=>/Microsoft.*(Jenny|Aria|Guy|Zira|English)/i.test(v.name))||vs.find(v=>/^en-US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
 function speakWord(word){vfSpeak(word,"en")}
 function speakMeaning(text){vfSpeak(text,"vi")}
@@ -672,7 +694,7 @@ function vfAudioFallback(text,lang){
   try{
     if(!vfAudio)vfAudio=new Audio();
     vfAudio.pause();
-    vfAudio.src="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+(lang==="vi"?"vi":"en")+"&q="+encodeURIComponent(text.slice(0,180));
+    vfAudio.src="[https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=](https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=)"+(lang==="vi"?"vi":"en")+"&q="+encodeURIComponent(text.slice(0,180));
     var p=vfAudio.play();
     if(p&&p.catch)p.catch(vfNotice);
     vfAudio.onerror=vfNotice;
@@ -685,7 +707,7 @@ function vfSpeak(text,lang){
   var ss=speechSynthesis,done=false,wd=null;
   function fallback(){
     if(done)return;
-    if(ss.speaking){done=true;return}      /* đang đọc thật rồi -> không cần dự phòng */
+    if(ss.speaking){done=true;return}
     done=true;vfAudioFallback(text,lang);
   }
   function go(){
@@ -697,14 +719,13 @@ function vfSpeak(text,lang){
     u.onstart=function(){done=true;clearTimeout(wd)};
     u.onend=function(){vfUtts=vfUtts.filter(function(x){return x!==u})};
     u.onerror=function(e){if(e&&(e.error==="interrupted"||e.error==="canceled"))return;clearTimeout(wd);fallback()};
-    vfUtts.push(u);if(vfUtts.length>6)vfUtts.shift();   /* giữ tham chiếu: tránh Chrome Android thu gom làm mất tiếng */
+    vfUtts.push(u);if(vfUtts.length>6)vfUtts.shift();
     ss.speak(u);
   }
   try{ss.resume()}catch(e){}
   wd=setTimeout(fallback,1800);
-  if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,80)}else go();   /* không speak() ngay sau cancel() */
+  if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,80)}else go();
 }
-/* "Mở khóa" âm thanh ở lần chạm đầu tiên (iOS/Android yêu cầu) */
 function vfUnlock(){
   if(vfUnlocked)return;vfUnlocked=true;
   try{if(vfHasTTS()){var u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}}catch(e){}
@@ -712,7 +733,6 @@ function vfUnlock(){
 }
 ["click","touchend","keydown"].forEach(function(ev){document.addEventListener(ev,vfUnlock,{capture:true,passive:true})});
 
-/* Trạng thái giọng đọc ở trang Cài đặt */
 function vfUpdateVoiceStatus(){
   var el=document.getElementById("voiceStatus");if(!el)return;
   var msg="";
@@ -726,4 +746,102 @@ function vfUpdateVoiceStatus(){
 }
 if(vfHasTTS()){var _ov=speechSynthesis.onvoiceschanged;speechSynthesis.onvoiceschanged=function(){if(typeof loadVoices==="function")loadVoices();vfUpdateVoiceStatus()}}
 setTimeout(vfUpdateVoiceStatus,500);setTimeout(vfUpdateVoiceStatus,2500);
-</script></body></html>
+</script>
+
+<script>
+/* ===== Đồng bộ đám mây với JSONBlob ===== */
+(function(){
+  var BLOB_API = "[https://jsonblob.com/api/jsonBlob](https://jsonblob.com/api/jsonBlob)";
+  function getSyncId(){ return localStorage.getItem("vf_sync_id") || ""; }
+  function setSyncId(id){ localStorage.setItem("vf_sync_id", id.trim()); }
+
+  function initSyncUI(){
+    var input = $("syncCodeInput");
+    var status = $("syncStatus");
+    if(!input) return;
+    var currentId = getSyncId();
+    input.value = currentId;
+    if(currentId){
+      status.textContent = "✓ Đã lưu Mã đồng bộ.";
+    }
+  }
+  window.addEventListener("DOMContentLoaded", function(){ setTimeout(initSyncUI, 100); });
+
+  document.addEventListener("click", function(e){
+    if(e.target && e.target.id === "saveSyncCodeBtn"){
+      var code = $("syncCodeInput").value.trim();
+      if(!code){ toast("Hãy nhập mã đồng bộ!"); return; }
+      setSyncId(code);
+      $("syncStatus").textContent = "✓ Đã lưu mã đồng bộ: " + code;
+      toast("Đã lưu mã đồng bộ thành công!");
+    }
+    
+    if(e.target && e.target.id === "pushCloudBtn"){
+      var code = getSyncId();
+      if(!code){ toast("Bạn chưa nhập và lưu Mã đồng bộ!"); return; }
+      $("syncStatus").textContent = "⏳ Đang đẩy dữ liệu lên đám mây...";
+      var dataToSync = { sets: sets, updated: Date.now() };
+      var blobKey = "vf_blob_url_" + code;
+      var existingUrl = localStorage.getItem(blobKey);
+      
+      if(existingUrl){
+        fetch(existingUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(dataToSync)
+        }).then(function(res){
+          if(res.ok){
+            $("syncStatus").textContent = "✓ Đẩy dữ liệu lên mây thành công!";
+            toast("Đã đồng bộ lên mây thành công! 🎉");
+          } else { throw new Error(); }
+        }).catch(function(){ createNewUrl(dataToSync, blobKey); });
+      } else { createNewUrl(dataToSync, blobKey); }
+    }
+    
+    if(e.target && e.target.id === "pullCloudBtn"){
+      var code = getSyncId();
+      if(!code){ toast("Bạn chưa nhập và lưu Mã đồng bộ!"); return; }
+      var blobKey = "vf_blob_url_" + code;
+      var existingUrl = localStorage.getItem(blobKey);
+      
+      if(!existingUrl){
+        toast("Chưa tìm thấy dữ liệu trên mây với mã này. Hãy đẩy dữ liệu từ máy tính lên trước!");
+        return;
+      }
+      
+      $("syncStatus").textContent = "⏳ Đang tải dữ liệu từ đám mây...";
+      fetch(existingUrl, { headers: { "Accept": "application/json" } })
+      .then(function(res){ if(!res.ok) throw new Error(); return res.json(); })
+      .then(function(json){
+        if(json && Array.isArray(json.sets)){
+          if(confirm("Tải dữ liệu từ mây sẽ cập nhật các bộ từ trên thiết bị này. Tiếp tục?")){
+            sets = json.sets;
+            saveSets();
+            renderSets();
+            refreshPracticeSets();
+            $("syncStatus").textContent = "✓ Tải dữ liệu về máy thành công!";
+            toast("Đã đồng bộ từ mây về máy thành công! 🚀");
+          }
+        }
+      }).catch(function(){ toast("Không thể tải dữ liệu từ mây."); });
+    }
+  });
+
+  function createNewUrl(dataToSync, blobKey){
+    fetch(BLOB_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(dataToSync)
+    }).then(function(res){
+      var location = res.headers.get("Location");
+      if(location){
+        localStorage.setItem(blobKey, location);
+        $("syncStatus").textContent = "✓ Đẩy dữ liệu lên mây thành công!";
+        toast("Đã tạo và đồng bộ lên mây thành công! 🎉");
+      }
+    }).catch(function(){ toast("Không thể kết nối đến máy chủ đám mây."); });
+  }
+})();
+</script>
+
+</body></html>
